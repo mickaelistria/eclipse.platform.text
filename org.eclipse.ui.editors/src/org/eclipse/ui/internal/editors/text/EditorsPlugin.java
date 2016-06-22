@@ -35,6 +35,7 @@ import org.eclipse.ui.texteditor.AnnotationTypeLookup;
 import org.eclipse.ui.texteditor.ContentAssistProcessorRegistry;
 import org.eclipse.ui.texteditor.HyperlinkDetectorRegistry;
 import org.eclipse.ui.texteditor.MarkerAnnotationPreferences;
+import org.eclipse.ui.texteditor.PresentationReconcilerRegistry;
 import org.eclipse.ui.texteditor.TextHoverRegistry;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 
@@ -121,6 +122,7 @@ public class EditorsPlugin extends AbstractUIPlugin {
 	 * @since 3.11
 	 */
 	private ContentAssistProcessorRegistry fContentAssistProcessorRegistry;
+	private PresentationReconcilerRegistry fPresentationReconcilerRegistry;
 
 	public EditorsPlugin() {
 		Assert.isTrue(fgInstance == null);
@@ -302,6 +304,15 @@ public class EditorsPlugin extends AbstractUIPlugin {
 		}
 		return fContentAssistProcessorRegistry;
 	}
+	
+	
+	public synchronized PresentationReconcilerRegistry getPresentationReconcilerRegistry() {
+		if (fPresentationReconcilerRegistry == null) {
+			fPresentationReconcilerRegistry = new PresentationReconcilerRegistry();
+		}
+
+		return fPresentationReconcilerRegistry;
+	}
  
 	/**
 	 * Returns the content assist additional info focus affordance string.
@@ -334,5 +345,6 @@ public class EditorsPlugin extends AbstractUIPlugin {
 		}
 		return section;
 	}
+
 
 }

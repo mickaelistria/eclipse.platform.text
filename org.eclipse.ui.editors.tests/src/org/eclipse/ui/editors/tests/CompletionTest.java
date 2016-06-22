@@ -88,7 +88,7 @@ public class CompletionTest {
 		Set<Shell> afterShell = new HashSet<>(Arrays.asList(Display.getDefault().getShells()));
 		afterShell.removeAll(beforeShell);
 		Assert.assertEquals("No completion", 1, afterShell.size());
-		afterShell.iterator().next().getDisplay().
+//		afterShell.iterator().next().getDisplay().
 	}
 
 }

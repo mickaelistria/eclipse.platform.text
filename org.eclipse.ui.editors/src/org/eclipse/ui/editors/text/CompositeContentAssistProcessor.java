@@ -10,6 +10,9 @@ import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 
+/**
+ * @since 3.11
+ */
 public class CompositeContentAssistProcessor implements IContentAssistProcessor {
 
 	private List<IContentAssistProcessor> fContentAssistProcessors;

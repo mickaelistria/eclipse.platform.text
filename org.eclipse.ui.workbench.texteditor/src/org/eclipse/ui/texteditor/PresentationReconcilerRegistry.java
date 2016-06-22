@@ -21,35 +21,33 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 
 import org.eclipse.jface.text.ITextViewer;
-import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
-import org.eclipse.jface.text.contentassist.IContextInformation;
-import org.eclipse.jface.text.contentassist.IContextInformationValidator;
+import org.eclipse.jface.text.presentation.IPresentationDamager;
+import org.eclipse.jface.text.presentation.IPresentationReconciler;
+import org.eclipse.jface.text.presentation.IPresentationRepairer;
+import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.source.ISourceViewer;
 
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.handlers.IHandlerService;
 import org.eclipse.ui.internal.texteditor.TextEditorPlugin;
 
 /**
  * @since 3.11
  */
-public class ContentAssistProcessorRegistry {
-
-	private static final String EXTENSION_POINT_ID = "org.eclipse.ui.workbench.texteditor.contentAssistProcessors"; //$NON-NLS-1$
+public class PresentationReconcilerRegistry {
 	
-	private static class ContentAssistProcessorExtension implements IContentAssistProcessor {
+	private static final String EXTENSION_POINT_ID = "org.eclipse.ui.workbench.texteditor.presentationReconcilers"; //$NON-NLS-1$
+	
+	private static class PresentationReconcilerExtension implements IPresentationReconciler {
 		private static final String ACTIVE_WHEN_NODE = "activeWhen"; //$NON-NLS-1$
 		private static final String LABEL_ATTRIBUTE = "label"; //$NON-NLS-1$
 		private static final String CLASS_ATTRIBUTE = "class"; //$NON-NLS-1$
-
+		
 		private IConfigurationElement extension;
 		private Expression activeWhen;
 		private String label;
 		
-		private IContentAssistProcessor delegate;
+		private IPresentationReconciler delegate;
 		
-		private ContentAssistProcessorExtension(IConfigurationElement element) throws Exception {
+		private PresentationReconcilerExtension(IConfigurationElement element) throws Exception {
 			this.extension = element;
 			IConfigurationElement[] activeWhenElements = extension.getChildren(ACTIVE_WHEN_NODE);
 			if (activeWhenElements.length != 1) {
@@ -58,18 +56,18 @@ public class ContentAssistProcessorRegistry {
 			this.activeWhen = ExpressionConverter.getDefault().perform(activeWhenElements[0].getChildren()[0]);
 			this.label = element.getAttribute(LABEL_ATTRIBUTE);
 		}
-
-		private IContentAssistProcessor getDelegate() {
+		
+		private IPresentationReconciler getDelegate() {
 			if (this.delegate == null) {
 				try {
-					this.delegate = (IContentAssistProcessor) extension.createExecutableExtension(CLASS_ATTRIBUTE);
+					this.delegate = (PresentationReconciler) extension.createExecutableExtension(CLASS_ATTRIBUTE);
 				} catch (CoreException e) {
 					e.printStackTrace();
 				}
 			}
 			return delegate;
 		}
-
+		
 		public boolean isActive(IEvaluationContext context) {
 			try {
 				return this.activeWhen.evaluate(context).equals(EvaluationResult.TRUE);
@@ -79,70 +77,33 @@ public class ContentAssistProcessorRegistry {
 			}
 		}
 
-		private boolean isActive() {
-			IEvaluationContext context = PlatformUI.getWorkbench().getService(IHandlerService.class).getCurrentState();
-			// TODO: more things in context: current resource name, content type, current editor id..., current partition
-			return isActive(context);
-		}
-
-		private IContentAssistProcessor createProposal() throws CoreException {
-			return (IContentAssistProcessor) this.extension.createExecutableExtension(CLASS_ATTRIBUTE);
-		}
-		
-
 		@Override
-		public ICompletionProposal[] computeCompletionProposals(ITextViewer viewer, int offset) {
-			if (isActive()) {
-				return getDelegate().computeCompletionProposals(viewer, offset);
-			}
-			return new ICompletionProposal[0];
+		public void install(ITextViewer viewer) {
+			getDelegate().install(viewer);
+			
 		}
 
 		@Override
-		public IContextInformation[] computeContextInformation(ITextViewer viewer, int offset) {
-			if (isActive()) {
-				return getDelegate().computeContextInformation(viewer, offset);
-			}
-			return new IContextInformation[0];
+		public void uninstall() {
+			getDelegate().uninstall();
 		}
 
 		@Override
-		public char[] getCompletionProposalAutoActivationCharacters() {
-			if (isActive()) {
-				return getDelegate().getCompletionProposalAutoActivationCharacters();
-			}
-			return null;
+		public IPresentationDamager getDamager(String contentType) {
+			return getDelegate().getDamager(contentType);
+			
 		}
 
 		@Override
-		public char[] getContextInformationAutoActivationCharacters() {
-			if (isActive()) {
-				return getDelegate().getContextInformationAutoActivationCharacters();
-			}
-			return null;
+		public IPresentationRepairer getRepairer(String contentType) {
+			return getDelegate().getRepairer(contentType);
 		}
 
-		@Override
-		public String getErrorMessage() {
-			if (isActive()) {
-				return getDelegate().getErrorMessage();
-			}
-			return null;
-		}
-
-		@Override
-		public IContextInformationValidator getContextInformationValidator() {
-			if (isActive()) {
-				return getDelegate().getContextInformationValidator();
-			}
-			return null;
-		}
 	}
-	
-	private Map<IConfigurationElement, ContentAssistProcessorExtension> extensions = new HashMap<>();
+	private Map<IConfigurationElement, PresentationReconcilerExtension> extensions = new HashMap<>();
 	private boolean outOfSync = true;
 	
-	public ContentAssistProcessorRegistry() {
+	public PresentationReconcilerRegistry() {
 		Platform.getExtensionRegistry().addRegistryChangeListener(new IRegistryChangeListener() {
 			@Override
 			public void registryChanged(IRegistryChangeEvent event) {
@@ -151,11 +112,11 @@ public class ContentAssistProcessorRegistry {
 		}, EXTENSION_POINT_ID);
 	}
 	
-	public List<IContentAssistProcessor> getContentAssistProcessors(ISourceViewer sourceViewer) {
+	public List<IPresentationReconciler> getPresentationReconcilers(ISourceViewer sourceViewer) {
 		if (this.outOfSync) {
 			sync();
 		}
-		List<IContentAssistProcessor> res = new ArrayList<>(this.extensions.values());
+		List<IPresentationReconciler> res = new ArrayList<IPresentationReconciler>(this.extensions.values());
 		return res;
 	}
 
@@ -165,7 +126,7 @@ public class ContentAssistProcessorRegistry {
 			toRemoveExtensions.remove(extension);
 			if (!this.extensions.containsKey(extension)) {
 				try {
-					this.extensions.put(extension, new ContentAssistProcessorExtension(extension));
+					this.extensions.put(extension, new PresentationReconcilerExtension(extension));
 				} catch (Exception ex) {
 					TextEditorPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, TextEditorPlugin.PLUGIN_ID, ex.getMessage(), ex));
 				}
@@ -175,4 +136,6 @@ public class ContentAssistProcessorRegistry {
 			this.extensions.remove(toRemove);
 		}
 	}
+	
+
 }
