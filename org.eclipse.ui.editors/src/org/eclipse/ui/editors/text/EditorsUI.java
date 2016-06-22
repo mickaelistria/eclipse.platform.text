@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Mickael Istria (Red Hat Inc.) - Added registry for contentAssist and hover
  *******************************************************************************/
 package org.eclipse.ui.editors.text;
 
@@ -29,9 +30,11 @@ import org.eclipse.ui.keys.IBindingService;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.eclipse.ui.texteditor.AnnotationPreferenceLookup;
 import org.eclipse.ui.texteditor.AnnotationTypeLookup;
+import org.eclipse.ui.texteditor.ContentAssistProcessorRegistry;
 import org.eclipse.ui.texteditor.HyperlinkDetectorRegistry;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.texteditor.MarkerAnnotationPreferences;
+import org.eclipse.ui.texteditor.TextHoverRegistry;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 
 
@@ -187,6 +190,29 @@ public final class EditorsUI {
 	 */
 	public static HyperlinkDetectorRegistry getHyperlinkDetectorRegistry() {
 		return EditorsPlugin.getDefault().getHyperlinkDetectorRegistry();
+	}
+	
+	/**
+	 * Returns the registry that contains the content assist procossor contributed
+	 * by  the <code>org.eclipse.ui.workbench.texteditor.contentAssistProcessors</code>
+	 * extension point.
+	 *
+	 * @return the content assist processors registry
+	 * @since 3.22
+	 */
+	public static ContentAssistProcessorRegistry getContentAssistProcessorRegistry() {
+		return EditorsPlugin.getDefault().getContentAssistProcessorRegistry();
+	}
+	
+	/**
+	 * Returns the registry that contains the hover providers contributed
+	 * by the <code>org.eclipse.ui.workbench.texteditor.hoverProviders</code>
+	 * extension point.
+	 * @return the hover provider registry.
+	 * @since 3.11
+	 */
+	public static TextHoverRegistry getHoverRegistry() {
+		return EditorsPlugin.getDefault().getTextHoverRegistry();
 	}
 
 	// --------------- Status codes for this plug-in ---------------

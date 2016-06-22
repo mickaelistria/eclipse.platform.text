@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.ui.editors.tests;
 
+import javax.annotation.processing.Completion;
+
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -27,7 +29,8 @@ import org.junit.runners.Suite.SuiteClasses;
 		GotoLineTest.class,
 		SegmentedModeTest.class,
 		MarkerAnnotationOrderTest.class,
-		ZoomTest.class
+		ZoomTest.class,
+		Completion.class
 })
 public class EditorsTestSuite {
 	// see @SuiteClasses

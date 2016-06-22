@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Wahlbrink <stephan.wahlbrink@walware.de> - [templates] improve logging when reading templates into ContributionTemplateStore - https://bugs.eclipse.org/bugs/show_bug.cgi?id=212252
+ *     Mickael Istria (Red Hat Inc.) - Added registry for contentAssist and hover
  *******************************************************************************/
 package org.eclipse.ui.internal.editors.text;
 
@@ -32,8 +33,10 @@ import org.eclipse.ui.themes.IThemeManager;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.eclipse.ui.texteditor.AnnotationPreferenceLookup;
 import org.eclipse.ui.texteditor.AnnotationTypeLookup;
+import org.eclipse.ui.texteditor.ContentAssistProcessorRegistry;
 import org.eclipse.ui.texteditor.HyperlinkDetectorRegistry;
 import org.eclipse.ui.texteditor.MarkerAnnotationPreferences;
+import org.eclipse.ui.texteditor.TextHoverRegistry;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 
 import org.eclipse.ui.editors.text.EditorsUI;
@@ -107,6 +110,18 @@ public class EditorsPlugin extends AbstractUIPlugin {
 	 * @since 3.3
 	 */
 	private HyperlinkDetectorRegistry fHyperlinkDetectorRegistry;
+	
+	/**
+	 * The hover provider registry.
+	 * @since 3.11
+	 */
+	private TextHoverRegistry fHoverProviderRegistry;
+	
+	/**
+	 * The content assist processor registry.
+	 * @since 3.11
+	 */
+	private ContentAssistProcessorRegistry fContentAssistProcessorRegistry;
 
 	public EditorsPlugin() {
 		Assert.isTrue(fgInstance == null);
@@ -260,7 +275,35 @@ public class EditorsPlugin extends AbstractUIPlugin {
 			fHyperlinkDetectorRegistry= new HyperlinkDetectorRegistry(getPreferenceStore());
 		return fHyperlinkDetectorRegistry;
 	}
-
+	
+	/**
+	 * Returns the registry that contains the hover providers contributed
+	 * by the <code>org.eclipse.ui.workbench.texteditor.hoverProviders</code>
+	 * extension point.
+	 * @return the hover provider registry.
+	 * @since 3.11
+	 */
+	public synchronized TextHoverRegistry getTextHoverRegistry() {
+		if (fHoverProviderRegistry == null) {
+			fHoverProviderRegistry= new TextHoverRegistry(getPreferenceStore());
+		}
+		return fHoverProviderRegistry;
+	}
+	
+	/**
+	 * Returns the registry that contains the content assist processor contributed
+	 * by the <code>org.eclipse.ui.workbench.texteditor.contentAssistProcessor</code>
+	 * extension point.
+	 * @return the content assist processor registry.
+	 * @since 3.11
+	 */
+	public synchronized ContentAssistProcessorRegistry getContentAssistProcessorRegistry() {
+		if (fContentAssistProcessorRegistry == null) {
+			fContentAssistProcessorRegistry = new ContentAssistProcessorRegistry();
+		}
+		return fContentAssistProcessorRegistry;
+	}
+ 
 	/**
 	 * Returns the content assist additional info focus affordance string.
 	 *

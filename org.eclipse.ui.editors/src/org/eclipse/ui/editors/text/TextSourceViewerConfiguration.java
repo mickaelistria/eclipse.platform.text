@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,11 +7,13 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Mickael Istria (Red Hat Inc.) - ext registries for contentAssist and hover
  *******************************************************************************/
 package org.eclipse.ui.editors.text;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.StringTokenizer;
@@ -28,6 +30,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
 
 import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.DefaultTextHover;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.ITextHover;
@@ -35,6 +38,9 @@ import org.eclipse.jface.text.ITextHoverExtension;
 import org.eclipse.jface.text.ITextViewerExtension2;
 import org.eclipse.jface.text.IUndoManager;
 import org.eclipse.jface.text.TextViewerUndoManager;
+import org.eclipse.jface.text.contentassist.ContentAssistant;
+import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
+import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.jface.text.hyperlink.IHyperlinkDetector;
 import org.eclipse.jface.text.hyperlink.IHyperlinkPresenter;
 import org.eclipse.jface.text.hyperlink.MultipleHyperlinkPresenter;
@@ -49,11 +55,14 @@ import org.eclipse.jface.text.source.IAnnotationHover;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
 
+import org.eclipse.ui.internal.editors.text.CoumpoundHover;
 import org.eclipse.ui.internal.editors.text.EditorsPlugin;
 
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.eclipse.ui.texteditor.AnnotationPreference;
+import org.eclipse.ui.texteditor.ContentAssistProcessorRegistry;
 import org.eclipse.ui.texteditor.HyperlinkDetectorRegistry;
+import org.eclipse.ui.texteditor.TextHoverRegistry;
 import org.eclipse.ui.texteditor.spelling.SpellingCorrectionProcessor;
 import org.eclipse.ui.texteditor.spelling.SpellingReconcileStrategy;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
@@ -144,11 +153,6 @@ public class TextSourceViewerConfiguration extends SourceViewerConfiguration {
 	@Override
 	public int[] getConfiguredTextHoverStateMasks(ISourceViewer sourceViewer, String contentType) {
 		return new int[] { ITextViewerExtension2.DEFAULT_HOVER_STATE_MASK };
-	}
-
-	@Override
-	public ITextHover getTextHover(ISourceViewer sourceViewer, String contentType) {
-		return new TextHover(sourceViewer);
 	}
 
 	/*
@@ -446,5 +450,22 @@ public class TextSourceViewerConfiguration extends SourceViewerConfiguration {
 			};
 		}
 	}
+	
+	@Override
+	public ITextHover getTextHover(ISourceViewer sourceViewer, String contentType) {
+		TextHoverRegistry registry= EditorsUI.getHoverRegistry();
 
+		List<ITextHover> hovers= registry.getAvailableHover(sourceViewer);
+		return new CoumpoundHover(hovers);
+	}
+	
+	@Override
+	public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
+		ContentAssistProcessorRegistry registry= EditorsUI.getContentAssistProcessorRegistry();
+		IContentAssistProcessor processor = new CompositeContentAssistProcessor(registry.getContentAssistProcessors(sourceViewer));
+		ContentAssistant res= new ContentAssistant();
+		res.setContentAssistProcessor(processor, IDocument.DEFAULT_CONTENT_TYPE);
+		return res;
+	}
+	
 }
