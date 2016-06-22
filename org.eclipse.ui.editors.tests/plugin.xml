@@ -11,5 +11,15 @@
          </activeWhen>
       </contentAssistProcessor>
    </extension>
+   <extension
+         point="org.eclipse.ui.workbench.texteditor.presentationReconcilers">
+      <presentationReconciler
+            class="org.eclipse.ui.editors.tests.contributions.ThePresentationReconciler">
+         <activeWhen>
+            <or></or>
+            activeWhen body text
+         </activeWhen>
+      </presentationReconciler>
+   </extension>
 
 </plugin>

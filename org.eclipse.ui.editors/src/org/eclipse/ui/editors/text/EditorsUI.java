@@ -33,6 +33,7 @@ import org.eclipse.ui.texteditor.ContentAssistProcessorRegistry;
 import org.eclipse.ui.texteditor.HyperlinkDetectorRegistry;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.texteditor.MarkerAnnotationPreferences;
+import org.eclipse.ui.texteditor.PresentationReconcilerRegistry;
 import org.eclipse.ui.texteditor.TextHoverRegistry;
 import org.eclipse.ui.texteditor.spelling.SpellingService;
 
@@ -197,7 +198,7 @@ public final class EditorsUI {
 	 * extension point.
 	 *
 	 * @return the content assist processors registry
-	 * @since 3.22
+	 * @since 3.11
 	 */
 	public static ContentAssistProcessorRegistry getContentAssistProcessorRegistry() {
 		return EditorsPlugin.getDefault().getContentAssistProcessorRegistry();
@@ -273,6 +274,16 @@ public final class EditorsUI {
 			return ""; //$NON-NLS-1$
 
 		return NLSUtility.format(TextEditorMessages.Editor_toolTip_affordance, keySequence);
+	}
+
+	/**
+	 * TODO
+	 *
+	 * @return the Presentation Reconciler registry
+	 * @since 3.11
+	 */
+	public static PresentationReconcilerRegistry getPresentationReconcilerRegistry() {
+		return EditorsPlugin.getDefault().getPresentationReconcilerRegistry();
 	}
 
 }

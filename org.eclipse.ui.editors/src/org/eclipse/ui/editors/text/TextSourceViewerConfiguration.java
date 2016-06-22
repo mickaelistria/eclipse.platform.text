@@ -43,6 +43,7 @@ import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.jface.text.hyperlink.IHyperlinkDetector;
 import org.eclipse.jface.text.hyperlink.IHyperlinkPresenter;
 import org.eclipse.jface.text.hyperlink.MultipleHyperlinkPresenter;
+import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.quickassist.IQuickAssistAssistant;
 import org.eclipse.jface.text.quickassist.QuickAssistAssistant;
 import org.eclipse.jface.text.reconciler.IReconciler;
@@ -61,6 +62,7 @@ import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.eclipse.ui.texteditor.AnnotationPreference;
 import org.eclipse.ui.texteditor.ContentAssistProcessorRegistry;
 import org.eclipse.ui.texteditor.HyperlinkDetectorRegistry;
+import org.eclipse.ui.texteditor.PresentationReconcilerRegistry;
 import org.eclipse.ui.texteditor.TextHoverRegistry;
 import org.eclipse.ui.texteditor.spelling.SpellingCorrectionProcessor;
 import org.eclipse.ui.texteditor.spelling.SpellingReconcileStrategy;
@@ -466,5 +468,15 @@ public class TextSourceViewerConfiguration extends SourceViewerConfiguration {
 		res.setContentAssistProcessor(processor, IDocument.DEFAULT_CONTENT_TYPE);
 		return res;
 	}
+	
+	@Override
+	public IPresentationReconciler getPresentationReconciler(ISourceViewer sourceViewer) {
+		
+		PresentationReconcilerRegistry registry = EditorsUI.getPresentationReconcilerRegistry();
+		
+		
+		return registry.getPresentationReconcilers(sourceViewer).get(0);
+	}
+	
 	
 }
