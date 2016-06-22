@@ -4,17 +4,21 @@ import java.io.ByteArrayInputStream;
 
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import org.eclipse.swt.custom.StyleRange;
+import org.eclipse.swt.custom.StyledText;
+import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.widgets.Control;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
-
-import org.eclipse.jface.text.ITextSelection;
 
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.PlatformUI;
@@ -66,11 +70,10 @@ public class StylingTest {
 	public void testStyle() throws Exception {
 		
 		editor.selectAndReveal(0, 4);
-		Thread.currentThread();
-		Thread.sleep(4000);
-		ITextSelection selection= (ITextSelection) editor.getSelectionProvider().getSelection();
-		//somehow test that it is red
-		
+		StyledText widget = (StyledText) editor.getAdapter(Control.class);
+		StyleRange style= widget.getStyleRangeAtOffset(0);//get the style of first token
+		boolean isRed= style.foreground.getRGB().equals(new RGB(255, 0, 0));//is it Red?
+		Assert.assertTrue("Token is not of expected color", isRed);		
 	}
 
 }
