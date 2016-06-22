@@ -7,6 +7,8 @@
     <extension-point id="rulerColumns" name="%ExtPoint.rulerColumns" schema="schema/rulerColumns.exsd"/>
     <extension-point id="hyperlinkDetectors" name="%ExtPoint.hyperlinkDetectors" schema="schema/hyperlinkDetectors.exsd"/>
     <extension-point id="hyperlinkDetectorTargets" name="%ExtPoint.hyperlinkDetectorTargets" schema="schema/hyperlinkDetectorTargets.exsd"/>
+    <extension-point id="hoverProvider" name="%ExtPoint.hoverProvider" schema="schema/hoverProvider.exsd"/>
+    <extension-point id="contentAssistProcessors" name="%ExtPoint.contentAssistProcessors" schema="schema/contentAssistProcessors.exsd"/>
 
 	<extension
 	     point="org.eclipse.ui.commands">
